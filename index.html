@@ -1,1894 +1,1338 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تحدي القلوب مع أحمد ✨</title>
-
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
-
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Cairo', sans-serif;
-            background:
-                radial-gradient(circle at 50% 35%, #312e81 0%, #1e1b4b 35%, #0f172a 100%);
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* =========================
-           GLASS
-        ========================= */
-
-        .glass-box {
-            background: rgba(255, 255, 255, 0.07);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-
-        /* =========================
-           CARD GLOW
-        ========================= */
-
-        #game-card {
-            transition:
-                transform 0.45s ease,
-                box-shadow 0.45s ease,
-                border-color 0.45s ease;
-        }
-
-        #game-card:hover {
-            box-shadow:
-                0 0 25px rgba(244, 114, 182, 0.12),
-                0 20px 60px rgba(0, 0, 0, 0.35);
-        }
-
-        /* =========================
-           TRANSITIONS
-        ========================= */
-
-        .fade-transition {
-            transition:
-                opacity 0.45s ease,
-                transform 0.45s cubic-bezier(.22,.61,.36,1),
-                filter 0.45s ease;
-        }
-
-        .hidden-step {
-            opacity: 0;
-            transform: translateY(18px) scale(0.98);
-            filter: blur(4px);
-            pointer-events: none;
-        }
-
-        .visible-step {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-            filter: blur(0);
-        }
-
-        /* =========================
-           HEARTS
-        ========================= */
-
-        .bg-heart {
-            position: absolute;
-            color: rgba(244, 114, 182, 0.18);
-            animation: floatUp linear infinite;
-            z-index: 0;
-            user-select: none;
-            will-change: transform, opacity;
-            filter: blur(0.2px);
-        }
-
-        @keyframes floatUp {
-            0% {
-                transform:
-                    translateY(110vh)
-                    translateX(0)
-                    scale(0.5)
-                    rotate(0deg);
-                opacity: 0;
-            }
-
-            15% {
-                opacity: 0.5;
-            }
-
-            50% {
-                transform:
-                    translateY(45vh)
-                    translateX(18px)
-                    scale(0.9)
-                    rotate(8deg);
-                opacity: 0.65;
-            }
-
-            85% {
-                opacity: 0.35;
-            }
-
-            100% {
-                transform:
-                    translateY(-15vh)
-                    translateX(-20px)
-                    scale(1.25)
-                    rotate(-8deg);
-                opacity: 0;
-            }
-        }
-
-        /* =========================
-           SPARKLES
-        ========================= */
-
-        .sparkle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.8);
-            animation: sparkleFloat 4s ease-in-out infinite;
-            pointer-events: none;
-        }
-
-        @keyframes sparkleFloat {
-            0%,100% {
-                opacity: 0;
-                transform: scale(0);
-            }
-
-            50% {
-                opacity: 0.8;
-                transform: scale(1);
-            }
-        }
-
-        /* =========================
-           INPUT
-        ========================= */
-
-        .answer-input {
-            width: 100%;
-            min-height: 115px;
-            resize: none;
-
-            background: rgba(255,255,255,0.06);
-
-            border: 1px solid rgba(244,114,182,0.35);
-
-            border-radius: 18px;
-
-            padding: 15px;
-
-            color: white;
-
-            outline: none;
-
-            font-family: 'Cairo', sans-serif;
-
-            font-size: 14px;
-
-            line-height: 1.8;
-
-            transition:
-                border-color 0.25s ease,
-                box-shadow 0.25s ease,
-                background 0.25s ease,
-                transform 0.25s ease;
-        }
-
-        .answer-input::placeholder {
-            color: rgba(255,255,255,0.45);
-        }
-
-        .answer-input:focus {
-            border-color: rgba(244,114,182,0.9);
-
-            background: rgba(244,114,182,0.08);
-
-            box-shadow:
-                0 0 25px rgba(244,114,182,0.22);
-
-            transform: translateY(-1px);
-        }
-
-        /* =========================
-           SUBMIT BUTTON
-        ========================= */
-
-        .submit-answer-btn {
-            position: relative;
-
-            overflow: hidden;
-
-            transition:
-                transform 0.25s ease,
-                box-shadow 0.25s ease,
-                opacity 0.25s ease;
-        }
-
-        .submit-answer-btn:hover {
-            transform: translateY(-2px);
-
-            box-shadow:
-                0 0 25px rgba(244,114,182,0.35);
-        }
-
-        .submit-answer-btn:active {
-            transform: scale(0.96);
-        }
-
-        .submit-answer-btn::before {
-            content: "";
-
-            position: absolute;
-
-            top: 0;
-            left: -120%;
-
-            width: 70%;
-            height: 100%;
-
-            background:
-                linear-gradient(
-                    90deg,
-                    transparent,
-                    rgba(255,255,255,0.2),
-                    transparent
-                );
-
-            transform: skewX(-20deg);
-
-            transition: left 0.6s ease;
-        }
-
-        .submit-answer-btn:hover::before {
-            left: 150%;
-        }
-
-        /* =========================
-           ANSWER REVIEW
-        ========================= */
-
-        .answer-review {
-            animation:
-                answerReview 0.6s cubic-bezier(.17,.67,.35,1.2);
-        }
-
-        @keyframes answerReview {
-
-            0% {
-                opacity: 0;
-                transform:
-                    scale(0.88)
-                    translateY(18px);
-                filter: blur(5px);
-            }
-
-            70% {
-                transform:
-                    scale(1.02)
-                    translateY(-2px);
-            }
-
-            100% {
-                opacity: 1;
-                transform:
-                    scale(1)
-                    translateY(0);
-                filter: blur(0);
-            }
-        }
-
-        .user-answer-box {
-            background:
-                rgba(99,102,241,0.13);
-
-            border:
-                1px solid rgba(129,140,248,0.35);
-
-            box-shadow:
-                0 0 20px rgba(99,102,241,0.08);
-        }
-
-        .ahmed-answer-box {
-            background:
-                rgba(244,114,182,0.13);
-
-            border:
-                1px solid rgba(244,114,182,0.4);
-
-            box-shadow:
-                0 0 20px rgba(244,114,182,0.12);
-        }
-
-        /* =========================
-           OPTIONS
-        ========================= */
-
-        .option-btn {
-            position: relative;
-            overflow: hidden;
-
-            transition:
-                transform 0.25s ease,
-                box-shadow 0.25s ease,
-                background 0.25s ease,
-                border-color 0.25s ease;
-        }
-
-        .option-btn:hover {
-            box-shadow:
-                0 0 22px rgba(244, 114, 182, 0.35);
-
-            border-color:
-                rgba(244, 114, 182, 0.75);
-
-            transform:
-                translateY(-2px)
-                scale(1.015);
-
-            background:
-                rgba(244, 114, 182, 0.09);
-        }
-
-        .option-btn:active {
-            transform: scale(0.96);
-
-            box-shadow:
-                0 0 30px rgba(244, 114, 182, 0.55);
-        }
-
-        /* =========================
-           QUESTION ICON
-        ========================= */
-
-        .question-icon {
-            animation:
-                softPulse 2.2s ease-in-out infinite,
-                floatIcon 3s ease-in-out infinite;
-        }
-
-        @keyframes softPulse {
-
-            0%,100% {
-                filter:
-                    drop-shadow(
-                        0 0 0
-                        rgba(244,114,182,0)
-                    );
-            }
-
-            50% {
-                filter:
-                    drop-shadow(
-                        0 0 14px
-                        rgba(244,114,182,0.6)
-                    );
-            }
-        }
-
-        @keyframes floatIcon {
-
-            0%,100% {
-                transform:
-                    translateY(0);
-            }
-
-            50% {
-                transform:
-                    translateY(-5px);
-            }
-        }
-
-        /* =========================
-           REPLY APPEAR
-        ========================= */
-
-        .reply-pop {
-            animation:
-                replyPop
-                0.55s
-                cubic-bezier(.17,.67,.35,1.35);
-        }
-
-        @keyframes replyPop {
-
-            0% {
-                opacity: 0;
-                transform:
-                    scale(0.85)
-                    translateY(12px);
-            }
-
-            70% {
-                transform:
-                    scale(1.03)
-                    translateY(-2px);
-            }
-
-            100% {
-                opacity: 1;
-                transform:
-                    scale(1)
-                    translateY(0);
-            }
-        }
-
-        /* =========================
-           FINAL SCREEN
-        ========================= */
-
-        .final-screen {
-            animation:
-                finalEnter
-                0.9s
-                cubic-bezier(.17,.67,.35,1.2);
-        }
-
-        @keyframes finalEnter {
-
-            0% {
-                opacity: 0;
-
-                transform:
-                    scale(0.75)
-                    translateY(30px);
-
-                filter: blur(8px);
-            }
-
-            100% {
-                opacity: 1;
-
-                transform:
-                    scale(1)
-                    translateY(0);
-
-                filter: blur(0);
-            }
-        }
-
-        .final-crown {
-            animation:
-                crownFloat 2.2s ease-in-out infinite,
-                crownGlow 2s ease-in-out infinite;
-        }
-
-        @keyframes crownFloat {
-
-            0%,100% {
-                transform:
-                    translateY(0)
-                    rotate(-2deg);
-            }
-
-            50% {
-                transform:
-                    translateY(-9px)
-                    rotate(2deg);
-            }
-        }
-
-        @keyframes crownGlow {
-
-            0%,100% {
-                filter:
-                    drop-shadow(
-                        0 0 4px
-                        rgba(244,114,182,0.3)
-                    );
-            }
-
-            50% {
-                filter:
-                    drop-shadow(
-                        0 0 22px
-                        rgba(244,114,182,0.85)
-                    );
-            }
-        }
-
-        .final-message {
-            box-shadow:
-                inset 0 0 25px rgba(244,114,182,0.06),
-                0 0 25px rgba(244,114,182,0.08);
-        }
-
-        /* =========================
-           PROGRESS
-        ========================= */
-
-        #progress-bar {
-            box-shadow:
-                0 0 12px rgba(244,114,182,0.65);
-        }
-
-        /* =========================
-           MOBILE
-        ========================= */
-
-        @media (max-width: 640px) {
-
-            #game-card {
-                border-radius: 28px;
-            }
-
-            .answer-input {
-                min-height: 105px;
-                font-size: 14px;
-            }
-
-            .option-btn:hover {
-                transform: none;
-            }
-        }
-
-        /* =========================
-           ACCESSIBILITY
-        ========================= */
-
-        @media (prefers-reduced-motion: reduce) {
-
-            *,
-            *::before,
-            *::after {
-
-                animation-duration:
-                    0.01ms !important;
-
-                animation-iteration-count:
-                    1 !important;
-
-                transition-duration:
-                    0.01ms !important;
-            }
-        }
-
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>تحدي القلوب مع أحمد ✨</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Cairo", sans-serif;
+      color: white;
+      overflow-x: hidden;
+
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 105, 180, 0.18), transparent 30%),
+        radial-gradient(circle at 80% 10%, rgba(180, 90, 255, 0.18), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(255, 50, 120, 0.15), transparent 35%),
+        linear-gradient(135deg, #090313, #17051f 45%, #090313);
+    }
+
+    .page {
+      min-height: 100vh;
+      padding: 25px 15px 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .background-glow {
+      position: fixed;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.18;
+      pointer-events: none;
+      animation: glowMove 8s ease-in-out infinite alternate;
+    }
+
+    .glow-1 {
+      background: #ff3d9a;
+      top: -150px;
+      left: -150px;
+    }
+
+    .glow-2 {
+      background: #8a4dff;
+      bottom: -180px;
+      right: -150px;
+      animation-delay: 2s;
+    }
+
+    @keyframes glowMove {
+      from {
+        transform: translate(0, 0) scale(1);
+      }
+      to {
+        transform: translate(40px, 30px) scale(1.15);
+      }
+    }
+
+    .main-container {
+      width: 100%;
+      max-width: 720px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .glass-card {
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      box-shadow:
+        0 25px 70px rgba(0, 0, 0, 0.45),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-radius: 30px;
+      padding: 25px;
+    }
+
+    .title {
+      text-align: center;
+      font-size: clamp(27px, 7vw, 45px);
+      font-weight: 800;
+      margin: 0;
+      background: linear-gradient(90deg, #fff, #ff9bd4, #fff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 35px rgba(255, 100, 190, 0.2);
+    }
+
+    .subtitle {
+      text-align: center;
+      color: rgba(255, 255, 255, 0.7);
+      margin-top: 8px;
+      font-size: 14px;
+    }
+
+    .progress-area {
+      margin-top: 25px;
+    }
+
+    .progress-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.65);
+      margin-bottom: 9px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 9px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 5%;
+      border-radius: 100px;
+      background: linear-gradient(90deg, #ff4da6, #c56cff);
+      box-shadow: 0 0 20px rgba(255, 70, 170, 0.5);
+      transition: width 0.5s ease;
+    }
+
+    .question-card {
+      margin-top: 28px;
+      padding: 28px 22px;
+      border-radius: 25px;
+      background: rgba(0, 0, 0, 0.17);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      animation: cardIn 0.5s ease;
+    }
+
+    @keyframes cardIn {
+      from {
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .question-number {
+      text-align: center;
+      color: #ff9bd4;
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    .question {
+      text-align: center;
+      font-size: clamp(20px, 5vw, 28px);
+      line-height: 1.7;
+      font-weight: 700;
+      margin: 0 auto 25px;
+      max-width: 620px;
+    }
+
+    .answer-input {
+      width: 100%;
+      min-height: 145px;
+      resize: vertical;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      outline: none;
+      border-radius: 20px;
+      padding: 17px;
+      font-family: "Cairo", sans-serif;
+      font-size: 16px;
+      line-height: 1.8;
+      color: white;
+      background: rgba(255, 255, 255, 0.07);
+      transition: 0.25s ease;
+    }
+
+    .answer-input::placeholder {
+      color: rgba(255, 255, 255, 0.42);
+    }
+
+    .answer-input:focus {
+      border-color: rgba(255, 100, 190, 0.6);
+      box-shadow: 0 0 0 4px rgba(255, 80, 170, 0.08);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    .submit-answer-btn,
+    .next-btn,
+    .action-btn {
+      width: 100%;
+      border: 0;
+      cursor: pointer;
+      color: white;
+      font-family: "Cairo", sans-serif;
+      font-size: 16px;
+      font-weight: 800;
+      border-radius: 18px;
+      padding: 15px 18px;
+      margin-top: 14px;
+      transition: 0.22s ease;
+      background: linear-gradient(135deg, #ff3f9e, #9c4dff);
+      box-shadow: 0 10px 30px rgba(214, 70, 170, 0.22);
+    }
+
+    .submit-answer-btn:hover,
+    .next-btn:hover,
+    .action-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 35px rgba(214, 70, 170, 0.3);
+    }
+
+    .submit-answer-btn:active,
+    .next-btn:active,
+    .action-btn:active {
+      transform: scale(0.98);
+    }
+
+    .submit-answer-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .answer-review {
+      display: none;
+      margin-top: 25px;
+      animation: cardIn 0.5s ease;
+    }
+
+    .review-title {
+      text-align: center;
+      font-size: 21px;
+      font-weight: 800;
+      margin-bottom: 18px;
+    }
+
+    .review-box {
+      padding: 17px;
+      border-radius: 18px;
+      margin-bottom: 13px;
+      line-height: 1.9;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .user-answer-box {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .ahmed-answer-box {
+      background: linear-gradient(
+        135deg,
+        rgba(255, 65, 160, 0.11),
+        rgba(140, 75, 255, 0.11)
+      );
+      border: 1px solid rgba(255, 100, 190, 0.16);
+    }
+
+    .review-label {
+      display: block;
+      color: #ff9bd4;
+      font-weight: 800;
+      margin-bottom: 5px;
+    }
+
+    .next-btn {
+      margin-top: 8px;
+    }
+
+    .final-screen {
+      display: none;
+      text-align: center;
+      animation: finalIn 0.8s ease;
+    }
+
+    @keyframes finalIn {
+      from {
+        opacity: 0;
+        transform: scale(0.94);
+      }
+
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .final-heart {
+      font-size: 65px;
+      animation: heartbeat 1.3s ease-in-out infinite;
+      display: inline-block;
+      margin-bottom: 5px;
+    }
+
+    @keyframes heartbeat {
+      0%, 100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.15);
+      }
+    }
+
+    .final-title {
+      font-size: clamp(25px, 7vw, 38px);
+      font-weight: 800;
+      margin-bottom: 22px;
+    }
+
+    .final-message {
+      min-height: 170px;
+      padding: 22px;
+      border-radius: 23px;
+      background: rgba(0, 0, 0, 0.16);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      font-size: clamp(16px, 4.5vw, 21px);
+      line-height: 2.1;
+      color: rgba(255, 255, 255, 0.95);
+      text-align: center;
+    }
+
+    .cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.2em;
+      background: #ff8ccc;
+      vertical-align: middle;
+      margin-right: 3px;
+      animation: blink 0.7s infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .final-buttons {
+      margin-top: 18px;
+      display: grid;
+      gap: 11px;
+    }
+
+    .action-btn.secondary {
+      background: rgba(255, 255, 255, 0.075);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: none;
+    }
+
+    .action-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.11);
+    }
+
+    .floating-heart,
+    .sparkle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0;
+    }
+
+    .floating-heart {
+      animation: floatUp linear forwards;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 0;
+        transform: translateY(20px) scale(0.7) rotate(0deg);
+      }
+
+      15% {
+        opacity: 0.8;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-110vh) scale(1.2) rotate(35deg);
+      }
+    }
+
+    .sparkle {
+      animation: sparkleAnim 1.7s ease-in-out forwards;
+    }
+
+    @keyframes sparkleAnim {
+      0% {
+        opacity: 0;
+        transform: scale(0) rotate(0deg);
+      }
+
+      30% {
+        opacity: 1;
+        transform: scale(1) rotate(90deg);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(0.2) rotate(180deg);
+      }
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 500px) {
+      .page {
+        padding: 14px 10px 25px;
+      }
+
+      .glass-card {
+        padding: 18px 13px;
+        border-radius: 24px;
+      }
+
+      .question-card {
+        padding: 23px 15px;
+      }
+
+      .answer-input {
+        min-height: 130px;
+      }
+    }
+  </style>
 </head>
 
-<body
-    class="min-h-screen text-white flex flex-col items-center justify-between p-4 relative"
->
+<body>
 
-    <!-- الخلفية -->
+  <div class="background-glow glow-1"></div>
+  <div class="background-glow glow-2"></div>
 
-    <div
-        id="bg-hearts-container"
-        class="absolute inset-0 pointer-events-none overflow-hidden"
-    ></div>
+  <div class="page">
 
-    <div
-        id="sparkles-container"
-        class="absolute inset-0 pointer-events-none overflow-hidden"
-    ></div>
+    <main class="main-container">
 
+      <div class="glass-card">
 
-    <!-- HEADER -->
+        <!-- HEADER -->
+        <section id="quiz-header">
+          <h1 class="title">تحدي القلوب مع أحمد ✨</h1>
 
-    <header
-        class="text-center mt-4 z-10 w-full max-w-lg"
-    >
+          <p class="subtitle">
+            جاوبي على كل سؤال من قلبك 💭❤️
+          </p>
 
-        <h1
-            class="text-2xl md:text-3xl font-extrabold text-pink-400 drop-shadow-md"
-        >
-            لعبة تحدي القلوب بيني وبينك ❤️
-        </h1>
+          <div class="progress-area">
+            <div class="progress-top">
+              <span id="progress-text">السؤال 1 من 20</span>
+              <span id="progress-percent">5%</span>
+            </div>
 
-        <div
-            class="w-full bg-white/10 h-2.5 rounded-full mt-3 overflow-hidden border border-pink-500/20"
-        >
-
-            <div
-                id="progress-bar"
-                class="bg-gradient-to-r from-pink-500 to-rose-500 h-full w-0 transition-all duration-700 rounded-full"
-            ></div>
-
-        </div>
-
-        <p
-            id="progress-text"
-            class="text-gray-300 text-xs mt-1.5 font-semibold"
-        >
-            السؤال 1 من 20
-        </p>
-
-    </header>
+            <div class="progress-track">
+              <div id="progress-bar" class="progress-bar"></div>
+            </div>
+          </div>
+        </section>
 
 
-    <!-- MAIN -->
+        <!-- QUIZ -->
+        <section id="quiz-section">
 
-    <main
-        class="w-full max-w-lg my-auto z-10"
-    >
+          <div class="question-card">
 
-        <div
-            id="game-card"
-            class="glass-box p-6 md:p-8 rounded-3xl shadow-2xl text-center relative overflow-hidden"
-        >
+            <div id="question-number" class="question-number">
+              السؤال 1
+            </div>
 
-            <!-- QUESTION -->
+            <h2 id="question" class="question"></h2>
 
-            <div
-                id="question-container"
-                class="fade-transition visible-step"
+            <textarea
+              id="answer-input"
+              class="answer-input"
+              placeholder="اكتبي إجابتك هنا... 💭"
+              autocomplete="off"
+            ></textarea>
+
+            <button
+              id="submit-btn"
+              class="submit-answer-btn"
+              onclick="submitAnswer()"
             >
+              إرسال الإجابة ➡️
+            </button>
 
-                <span
-                    class="question-icon text-3xl mb-3 block"
-                >
-                    ✨
-                </span>
+            <!-- REVIEW -->
+            <div id="ahmed-reply-area" class="answer-review">
 
-                <h2
-                    id="q-text"
-                    class="text-lg md:text-xl font-bold text-white mb-6 leading-relaxed"
-                >
-                </h2>
+              <div class="review-title">
+                💌 إجابتك وصلت
+              </div>
 
+              <div class="review-box user-answer-box">
+                <span class="review-label">✍️ إجابتك:</span>
+                <span id="user-answer-text"></span>
+              </div>
 
-                <!-- INPUT -->
+              <div class="review-box ahmed-answer-box">
+                <span class="review-label">💬 جواب أحمد:</span>
+                <span id="ahmed-reply-text"></span>
+              </div>
 
-                <div
-                    id="answer-area"
-                    class="flex flex-col gap-3"
-                >
-
-                    <textarea
-                        id="answer-input"
-                        class="answer-input"
-                        placeholder="اكتبي إجابتك هنا... 💭"
-                        enterkeyhint="send"
-                        autocomplete="off"
-                        spellcheck="true"
-                    ></textarea>
-
-
-                    <p
-                        class="text-xs text-gray-400 -mt-1"
-                    >
-                        اكتبي إجابتك بطريقتك ❤️
-                    </p>
-
-
-                    <button
-                        id="submit-answer-btn"
-                        type="button"
-                        onclick="submitAnswer()"
-                        class="submit-answer-btn w-full bg-gradient-to-r from-pink-500 to-rose-600 py-3 rounded-xl font-bold shadow-lg text-white"
-                    >
-                        إرسال الإجابة ➡️
-                    </button>
-
-                </div>
+              <button
+                class="next-btn"
+                onclick="nextQuestion()"
+              >
+                السؤال اللي بعده ➡️
+              </button>
 
             </div>
 
+          </div>
 
-            <!-- ANSWER REVIEW -->
+        </section>
 
-            <div
-                id="ahmed-reply-area"
-                class="fade-transition hidden-step absolute inset-0 p-6 md:p-8 flex flex-col items-center justify-center bg-[#0f172a]/95 backdrop-blur-md"
+
+        <!-- FINAL SCREEN -->
+        <section id="final-screen" class="final-screen">
+
+          <div class="final-heart">💌</div>
+
+          <h2 class="final-title">
+            وصلتي للنهاية ✨
+          </h2>
+
+          <div id="final-message" class="final-message"></div>
+
+          <div class="final-buttons">
+
+            <!-- إعادة قراءة الرسالة -->
+            <button
+              class="action-btn"
+              onclick="readFinalMessageAgain()"
             >
+              💌 إعادة قراءة الرسالة
+            </button>
 
-                <div
-                    id="review-content"
-                    class="answer-review w-full"
-                >
+            <!-- نسخ كل الأسئلة والإجابات -->
+            <button
+              class="action-btn secondary"
+              onclick="copyAnswers()"
+            >
+              📋 نسخ كل الأسئلة وإجاباتها ❤️
+            </button>
 
-                    <!-- USER ANSWER -->
+            <!-- إعادة اللعب -->
+            <button
+              class="action-btn secondary"
+              onclick="restartGame()"
+            >
+              🔄 العب من جديد
+            </button>
 
-                    <div
-                        class="user-answer-box p-4 rounded-2xl mb-3 w-full"
-                    >
+          </div>
 
-                        <span
-                            class="text-xs text-indigo-300 font-bold block mb-2"
-                        >
-                            ✍️ إجابتك:
-                        </span>
+        </section>
 
-                        <p
-                            id="user-answer-text"
-                            class="text-indigo-100 text-sm md:text-base font-semibold leading-relaxed break-words"
-                        >
-                        </p>
-
-                    </div>
-
-
-                    <!-- AHMED ANSWER -->
-
-                    <div
-                        class="ahmed-answer-box p-4 rounded-2xl mb-6 w-full"
-                    >
-
-                        <span
-                            class="text-xs text-pink-300 font-bold block mb-2"
-                        >
-                            💬 جواب أحمد:
-                        </span>
-
-                        <p
-                            id="ahmed-reply-text"
-                            class="text-pink-100 text-sm md:text-base font-semibold leading-relaxed"
-                        >
-                        </p>
-
-                    </div>
-
-
-                    <!-- NEXT -->
-
-                    <button
-                        onclick="nextQuestion()"
-                        class="w-full bg-gradient-to-r from-pink-500 to-rose-600 hover:opacity-90 py-3 rounded-xl font-bold shadow-lg transition transform active:scale-95 option-btn"
-                    >
-                        السؤال اللي بعده ➡️
-                    </button>
-
-                </div>
-
-            </div>
-
-        </div>
+      </div>
 
     </main>
+  </div>
 
 
-    <!-- FOOTER -->
+  <script>
 
-    <footer
-        class="text-center text-xs text-gray-400 mb-2 z-10"
-    >
-        تصميم وإشراف: أحمد لعيون الغالية ✨
-    </footer>
+    /* ==============================
+       الأسئلة والردود
+    ============================== */
+
+    const quizData = [
+
+      {
+        q: "قداش واثقة إن غلاكِ عندي مافيش زيه في الكون كله؟",
+        ahmedReply: "تقه لانهائه ❣️😂🙈"
+      },
+
+      {
+        q: "لو طلبت منك تبتسمي توا، قداش رح تكون ضحكتك حلوة؟",
+        ahmedReply: "ضحكة ساحرة ✨"
+      },
+
+      {
+        q: "تتوقعي منو فينا يعاند اكتر التاني؟",
+        ahmedReply: "اني طبعا 🙃🌝"
+      },
+
+      {
+        q: "لما نتحدثوا، قداش يمر الوقت بسرعة معاكِ؟",
+        ahmedReply: "تحسه يمشي بسرعه كبيرة قداش منتمنى تفتحي ديما 😭😞"
+      },
+
+      {
+        q: "لو طلعنا مكان هادئ توا، شن تحبي نديروا؟",
+        ahmedReply: "بتخليني 🙂 انبصر انبصر منسمع طبعا كلام حلو منشربو شي اكيدا منهدرزو وهلبا حاجات 🫠♥️"
+      },
+
+      {
+        q: "قداش تقدري تصبري لو ما كلمتنيش يوم كامل؟",
+        ahmedReply: "عارفك مدوريش فيا بكل عكسي اني 🙂🔪"
+      },
+
+      {
+        q: "شن أكتر حاجة تعجبك في شخصيتي؟",
+        ahmedReply: "انحس فيك بدقولي غيرتك 🙂"
+      },
+
+      {
+        q: "لو عطيتك صندوق سحري تطلبي فيه أمنية وحدة، شنو تطلبي؟",
+        ahmedReply: "انحس فيك بتكلبي نقعدو ديما مع بعض ويحمعنا ربي بي الحلال"
+      },
+
+      {
+        q: "كيف تشوفي فيا بالنسبة ليامك الحلوة؟",
+        ahmedReply: "اني انشوف فيك my global ❣️😞"
+      },
+
+      {
+        q: "لو زعلتِ مني في يوم، شن أكتر طريقة ترضيك بسرعة؟",
+        ahmedReply: "مش حنخليك تزعلي مني اصلا 🙂❣️"
+      },
+
+      {
+        q: "قداش تعطيني نسبة في غلاوتك من 10؟",
+        ahmedReply: "بي النسبه ليا عدد لانهائي من عشره 🙂 والسؤال هوا ليك"
+      },
+
+      {
+        q: "لو سافرنا لأي مكان في العالم توا، وين تختاري؟",
+        ahmedReply: "اني منختار سويسرا وانتي بتخاغري تركيا اني عارفك 🙂"
+      },
+
+      {
+        q: "شن إحساسك أول ما تشوف اسمي يطلع على شاشة تلفونك؟",
+        ahmedReply: "🎤جاوبي"
+      },
+
+      {
+        q: "تتوقعي نقدر نصبر على زعلك لو طولتي الغيبة؟",
+        ahmedReply: "اكييددددددد ❣️💋"
+      },
+
+      {
+        q: "لما تحسي بالتعب أو اليوم كان طويل وصعب، شن تديري؟",
+        ahmedReply: "نرقد 🙂"
+      },
+
+      {
+        q: "لو وصفتيني بكلمة وحدة، شن تقولي؟",
+        ahmedReply: "قتلك انتي كل شي فيا عالمي الخاص روحي كل شي 🙈💋❣️"
+      },
+
+      {
+        q: "في نظرك، شن هو السر اللي مخليني نموت فيك؟",
+        ahmedReply: "قلبك وحلاوتك 🙂"
+      },
+
+      {
+        q: "لو تمنيت أمنية واحدة تتحقق توا، شنو تتمنى؟",
+        ahmedReply: "انسافر من ليبيا لان السؤال شبه مكرر في منه فوق"
+      },
+
+      {
+        q: "قداش تحبي تسمعي مني كلمة (نحبك)؟",
+        ahmedReply: "لانهائي من المرات امووووووووووووووووووووووووووحححح 💋💋💋💋"
+      },
+
+      {
+        q: "جاهزة تختمي التحدي وتعرفي الرسالة الأخيرة من أحمد؟",
+        ahmedReply: "هي تو بدجيك اخر رساله مني 🙂🙈"
+      }
+
+    ];
 
 
-    <script>
+    /* ==============================
+       المتغيرات
+    ============================== */
 
-        /* =====================================================
-           AUDIO ENGINE
-        ===================================================== */
+    let currentQuestion = 0;
 
-        let audioCtx = null;
+    let userAnswers = [];
+
+    const finalMessageText =
+      "يا أجمل وأروع صدفة دخلت دنيتي.. انتي مو بس حبيبتي، انتي عالمي الخاص، روحي، وكل شي فيا 🙈💋❣️. نحبك اليوم، وبكرة، ولآخر العمر يا أسطورة الكون كله. امووووووووووووووووووووووووووحححح 💋💋💋💋";
 
 
-        function getAudioContext() {
+    /* ==============================
+       العناصر
+    ============================== */
 
-            if (!audioCtx) {
+    const questionElement =
+      document.getElementById("question");
 
-                audioCtx =
-                    new (
-                        window.AudioContext ||
-                        window.webkitAudioContext
-                    )();
+    const questionNumberElement =
+      document.getElementById("question-number");
 
-            }
+    const answerInput =
+      document.getElementById("answer-input");
 
-            if (
-                audioCtx.state === "suspended"
-            ) {
+    const submitButton =
+      document.getElementById("submit-btn");
 
-                audioCtx.resume();
+    const replyArea =
+      document.getElementById("ahmed-reply-area");
 
-            }
+    const userAnswerText =
+      document.getElementById("user-answer-text");
 
-            return audioCtx;
+    const ahmedReplyText =
+      document.getElementById("ahmed-reply-text");
+
+    const progressBar =
+      document.getElementById("progress-bar");
+
+    const progressText =
+      document.getElementById("progress-text");
+
+    const progressPercent =
+      document.getElementById("progress-percent");
+
+    const quizSection =
+      document.getElementById("quiz-section");
+
+    const quizHeader =
+      document.getElementById("quiz-header");
+
+    const finalScreen =
+      document.getElementById("final-screen");
+
+    const finalMessage =
+      document.getElementById("final-message");
+
+
+    /* ==============================
+       أصوات بسيطة
+    ============================== */
+
+    let audioContext = null;
+
+    function playTone(
+      frequency = 520,
+      duration = 0.08
+    ) {
+
+      try {
+
+        if (!audioContext) {
+          audioContext =
+            new (window.AudioContext ||
+            window.webkitAudioContext)();
         }
 
+        const oscillator =
+          audioContext.createOscillator();
 
-        function playTone(
-            frequency = 600,
-            duration = 0.08,
-            volume = 0.07,
-            type = "sine"
-        ) {
+        const gain =
+          audioContext.createGain();
 
-            try {
+        oscillator.type = "sine";
+        oscillator.frequency.value = frequency;
 
-                const ctx =
-                    getAudioContext();
-
-                const osc =
-                    ctx.createOscillator();
-
-                const gain =
-                    ctx.createGain();
-
-
-                osc.type = type;
-
-
-                osc.frequency.setValueAtTime(
-                    frequency,
-                    ctx.currentTime
-                );
-
-
-                gain.gain.setValueAtTime(
-                    volume,
-                    ctx.currentTime
-                );
-
-
-                gain.gain.exponentialRampToValueAtTime(
-                    0.001,
-                    ctx.currentTime + duration
-                );
-
-
-                osc.connect(gain);
-
-                gain.connect(
-                    ctx.destination
-                );
-
-
-                osc.start();
-
-
-                osc.stop(
-                    ctx.currentTime + duration
-                );
-
-            } catch (e) {}
-
-        }
-
-
-        function playClickSound() {
-
-            playTone(
-                580,
-                0.08,
-                0.07,
-                "sine"
-            );
-
-
-            setTimeout(() => {
-
-                playTone(
-                    800,
-                    0.06,
-                    0.035,
-                    "sine"
-                );
-
-            }, 35);
-
-        }
-
-
-        function playNextSound() {
-
-            playTone(
-                520,
-                0.08,
-                0.05,
-                "sine"
-            );
-
-
-            setTimeout(() => {
-
-                playTone(
-                    690,
-                    0.10,
-                    0.04,
-                    "sine"
-                );
-
-            }, 70);
-
-        }
-
-
-        function playFinalSound() {
-
-            playTone(
-                523,
-                0.18,
-                0.05,
-                "sine"
-            );
-
-
-            setTimeout(() => {
-
-                playTone(
-                    659,
-                    0.18,
-                    0.05,
-                    "sine"
-                );
-
-            }, 130);
-
-
-            setTimeout(() => {
-
-                playTone(
-                    784,
-                    0.30,
-                    0.06,
-                    "sine"
-                );
-
-            }, 260);
-
-        }
-
-
-        /* =====================================================
-           BACKGROUND HEARTS
-        ===================================================== */
-
-        const heartsContainer =
-            document.getElementById(
-                "bg-hearts-container"
-            );
-
-
-        for (
-            let i = 0;
-            i < 26;
-            i++
-        ) {
-
-            const heart =
-                document.createElement("div");
-
-
-            heart.className =
-                "bg-heart";
-
-
-            heart.innerHTML =
-                Math.random() > 0.5
-                    ? "❤️"
-                    : "💗";
-
-
-            heart.style.left =
-                Math.random() * 100 + "%";
-
-
-            heart.style.fontSize =
-                (
-                    Math.random() * 18 +
-                    10
-                ) + "px";
-
-
-            heart.style.animationDuration =
-                (
-                    Math.random() * 7 +
-                    5
-                ) + "s";
-
-
-            heart.style.animationDelay =
-                (
-                    Math.random() * 7
-                ) + "s";
-
-
-            heartsContainer.appendChild(
-                heart
-            );
-
-        }
-
-
-        /* =====================================================
-           SPARKLES
-        ===================================================== */
-
-        const sparklesContainer =
-            document.getElementById(
-                "sparkles-container"
-            );
-
-
-        for (
-            let i = 0;
-            i < 18;
-            i++
-        ) {
-
-            const sparkle =
-                document.createElement("div");
-
-
-            sparkle.className =
-                "sparkle";
-
-
-            sparkle.style.left =
-                Math.random() * 100 + "%";
-
-
-            sparkle.style.top =
-                Math.random() * 100 + "%";
-
-
-            sparkle.style.animationDelay =
-                Math.random() * 4 + "s";
-
-
-            sparklesContainer.appendChild(
-                sparkle
-            );
-
-        }
-
-
-        /* =====================================================
-           QUIZ DATA
-           نفس الأسئلة والردود بدون تغيير
-        ===================================================== */
-
-        const quizData = [
-
-            {
-                q: "قداش واثقة إن غلاكِ عندي مافيش زيه في الكون كله؟",
-
-                ahmedReply:
-                    "تقه لانهائه ❣️😂🙈"
-            },
-
-
-            {
-                q: "لو طلبت منك تبتسمي توا، قداش رح تكون ضحكتك حلوة؟",
-
-                ahmedReply:
-                    "ضحكة ساحرة ✨"
-            },
-
-
-            {
-                q: "تتوقعي منو فينا يعاند اكتر التاني؟",
-
-                ahmedReply:
-                    "اني طبعا 🙃🌝"
-            },
-
-
-            {
-                q: "لما نتحدثوا، قداش يمر الوقت بسرعة معاكِ؟",
-
-                ahmedReply:
-                    "تحسه يمشي بسرعه كبيرة قداش منتمنى تفتحي ديما 😭😞"
-            },
-
-
-            {
-                q: "لو طلعنا مكان هادئ توا، شن تحبي نديروا؟",
-
-                ahmedReply:
-                    "بتخليني 🙂 انبصر انبصر منسمع طبعا كلام حلو منشربو شي اكيدا منهدرزو وهلبا حاجات 🫠♥️"
-            },
-
-
-            {
-                q: "قداش تقدري تصبري لو ما كلمتنيش يوم كامل؟",
-
-                ahmedReply:
-                    "عارفك مدوريش فيا بكل عكسي اني 🙂🔪"
-            },
-
-
-            {
-                q: "شن أكتر حاجة تعجبك في شخصيتي؟",
-
-                ahmedReply:
-                    "انحس فيك بدقولي غيرتك 🙂"
-            },
-
-
-            {
-                q: "لو عطيتك صندوق سحري تطلبي فيه أمنية وحدة، شنو تطلبي؟",
-
-                ahmedReply:
-                    "انحس فيك بتكلبي نقعدو ديما مع بعض ويحمعنا ربي بي الحلال"
-            },
-
-
-            {
-                q: "كيف تشوفي فيا بالنسبة ليامك الحلوة؟",
-
-                ahmedReply:
-                    "اني انشوف فيك my global ❣️😞"
-            },
-
-
-            {
-                q: "لو زعلتِ مني في يوم، شن أكتر طريقة ترضيك بسرعة؟",
-
-                ahmedReply:
-                    "مش حنخليك تزعلي مني اصلا 🙂❣️"
-            },
-
-
-            {
-                q: "قداش تعطيني نسبة في غلاوتك من 10؟",
-
-                ahmedReply:
-                    "بي النسبه ليا عدد لانهائي من عشره 🙂 والسؤال هوا ليك"
-            },
-
-
-            {
-                q: "لو سافرنا لأي مكان في العالم توا، وين تختاري؟",
-
-                ahmedReply:
-                    "اني منختار سويسرا وانتي بتخاغري تركيا اني عارفك 🙂"
-            },
-
-
-            {
-                q: "شن إحساسك أول ما تشوف اسمي يطلع على شاشة تلفونك؟",
-
-                ahmedReply:
-                    "🎤جاوبي"
-            },
-
-
-            {
-                q: "تتوقعي نقدر نصبر على زعلك لو طولتي الغيبة؟",
-
-                ahmedReply:
-                    "اكييددددددد ❣️💋"
-            },
-
-
-            {
-                q: "لما تحسي بالتعب أو اليوم كان طويل وصعب، شن تديري؟",
-
-                ahmedReply:
-                    "نرقد 🙂"
-            },
-
-
-            {
-                q: "لو وصفتيني بكلمة وحدة، شن تقولي؟",
-
-                ahmedReply:
-                    "قتلك انتي كل شي فيا عالمي الخاص روحي كل شي 🙈💋❣️"
-            },
-
-
-            {
-                q: "في نظرك، شن هو السر اللي مخليني نموت فيك؟",
-
-                ahmedReply:
-                    "قلبك وحلاوتك 🙂"
-            },
-
-
-            {
-                q: "لو تمنيت أمنية واحدة تتحقق توا، شن تتمنى؟",
-
-                ahmedReply:
-                    "انسافر من ليبيا لان السؤال شبه مكرر في منه فوق"
-            },
-
-
-            {
-                q: "قداش تحبي تسمعي مني كلمة (نحبك)؟",
-
-                ahmedReply:
-                    "لانهائي من المرات امووووووووووووووووووووووووووحححح 💋💋💋💋"
-            },
-
-
-            {
-                q: "جاهزة تختمي التحدي وتعرفي الرسالة الأخيرة من أحمد؟",
-
-                ahmedReply:
-                    "هي تو بدجيك اخر رساله مني 🙂🙈"
-            }
-
-        ];
-
-
-        /* =====================================================
-           VARIABLES
-        ===================================================== */
-
-        let currentIndex = 0;
-
-        let userAnswersLog = [];
-
-
-        let currentUserAnswer =
-            "";
-
-
-        const qText =
-            document.getElementById(
-                "q-text"
-            );
-
-
-        const answerInput =
-            document.getElementById(
-                "answer-input"
-            );
-
-
-        const submitAnswerBtn =
-            document.getElementById(
-                "submit-answer-btn"
-            );
-
-
-        const progressText =
-            document.getElementById(
-                "progress-text"
-            );
-
-
-        const progressBar =
-            document.getElementById(
-                "progress-bar"
-            );
-
-
-        const questionContainer =
-            document.getElementById(
-                "question-container"
-            );
-
-
-        const ahmedReplyArea =
-            document.getElementById(
-                "ahmed-reply-area"
-            );
-
-
-        const userAnswerText =
-            document.getElementById(
-                "user-answer-text"
-            );
-
-
-        const ahmedReplyText =
-            document.getElementById(
-                "ahmed-reply-text"
-            );
-
-
-        const reviewContent =
-            document.getElementById(
-                "review-content"
-            );
-
-
-        /* =====================================================
-           LOAD QUESTION
-        ===================================================== */
-
-        function loadQuestion() {
-
-            if (
-                currentIndex >=
-                quizData.length
-            ) {
-
-                showFinalCelebration();
-
-                return;
-            }
-
-
-            const current =
-                quizData[currentIndex];
-
-
-            const progressPercent =
-                (
-                    (currentIndex + 1) /
-                    quizData.length
-                ) * 100;
-
-
-            progressBar.style.width =
-                progressPercent + "%";
-
-
-            progressText.innerText =
-                `السؤال ${currentIndex + 1} من ${quizData.length}`;
-
-
-            questionContainer.classList.remove(
-                "visible-step"
-            );
-
-
-            questionContainer.classList.add(
-                "hidden-step"
-            );
-
-
-            ahmedReplyArea.classList.remove(
-                "visible-step"
-            );
-
-
-            ahmedReplyArea.classList.add(
-                "hidden-step"
-            );
-
-
-            setTimeout(() => {
-
-                qText.innerText =
-                    current.q;
-
-
-                answerInput.value =
-                    "";
-
-
-                answerInput.disabled =
-                    false;
-
-
-                submitAnswerBtn.disabled =
-                    false;
-
-
-                submitAnswerBtn.style.opacity =
-                    "1";
-
-
-                currentUserAnswer =
-                    "";
-
-
-                questionContainer.classList.remove(
-                    "hidden-step"
-                );
-
-
-                questionContainer.classList.add(
-                    "visible-step"
-                );
-
-
-                setTimeout(() => {
-
-                    answerInput.focus();
-
-                }, 150);
-
-            }, 280);
-
-        }
-
-
-        /* =====================================================
-           SUBMIT ANSWER
-        ===================================================== */
-
-        function submitAnswer() {
-
-            const answer =
-                answerInput.value.trim();
-
-
-            /* لا تسمح بإرسال إجابة فارغة */
-
-            if (!answer) {
-
-                answerInput.focus();
-
-                answerInput.style.borderColor =
-                    "rgba(248,113,113,0.9)";
-
-                answerInput.style.boxShadow =
-                    "0 0 22px rgba(248,113,113,0.2)";
-
-
-                setTimeout(() => {
-
-                    answerInput.style.borderColor =
-                        "";
-
-                    answerInput.style.boxShadow =
-                        "";
-
-                }, 900);
-
-
-                return;
-            }
-
-
-            playClickSound();
-
-
-            confetti({
-                particleCount: 35,
-
-                spread: 65,
-
-                startVelocity: 20,
-
-                origin: {
-                    y: 0.7
-                }
-            });
-
-
-            currentUserAnswer =
-                answer;
-
-
-            const current =
-                quizData[currentIndex];
-
-
-            /*
-             * حفظ السؤال + إجابة المستخدم
-             * + جواب أحمد
-             */
-
-            userAnswersLog.push(
-
-                `السؤال ${currentIndex + 1}:\n` +
-
-                `${current.q}\n\n` +
-
-                `إجابتها:\n` +
-
-                `${answer}\n\n` +
-
-                `جواب أحمد:\n` +
-
-                `${current.ahmedReply}\n` +
-
-                `-----------------------------\n`
-
-            );
-
-
-            /*
-             * تعطيل الإدخال
-             */
-
-            answerInput.disabled =
-                true;
-
-
-            submitAnswerBtn.disabled =
-                true;
-
-
-            submitAnswerBtn.style.opacity =
-                "0.5";
-
-
-            /*
-             * إخفاء السؤال
-             */
-
-            questionContainer.classList.remove(
-                "visible-step"
-            );
-
-
-            questionContainer.classList.add(
-                "hidden-step"
-            );
-
-
-            /*
-             * إظهار الإجابات
-             */
-
-            setTimeout(() => {
-
-                userAnswerText.innerText =
-                    answer;
-
-
-                ahmedReplyText.innerText =
-                    current.ahmedReply;
-
-
-                /*
-                 * إعادة تشغيل حركة الظهور
-                 */
-
-                reviewContent.classList.remove(
-                    "answer-review"
-                );
-
-
-                void reviewContent.offsetWidth;
-
-
-                reviewContent.classList.add(
-                    "answer-review"
-                );
-
-
-                ahmedReplyArea.classList.remove(
-                    "hidden-step"
-                );
-
-
-                ahmedReplyArea.classList.add(
-                    "visible-step"
-                );
-
-
-            }, 280);
-
-        }
-
-
-        /* =====================================================
-           ENTER KEY
-        ===================================================== */
-
-        answerInput.addEventListener(
-            "keydown",
-            function(event) {
-
-                /*
-                 * Enter = إرسال
-                 *
-                 * Shift + Enter =
-                 * سطر جديد
-                 */
-
-                if (
-                    event.key === "Enter" &&
-                    !event.shiftKey
-                ) {
-
-                    event.preventDefault();
-
-                    submitAnswer();
-
-                }
-
-            }
+        gain.gain.setValueAtTime(
+          0.001,
+          audioContext.currentTime
         );
 
+        gain.gain.exponentialRampToValueAtTime(
+          0.08,
+          audioContext.currentTime + 0.01
+        );
 
-        /* =====================================================
-           NEXT QUESTION
-        ===================================================== */
+        gain.gain.exponentialRampToValueAtTime(
+          0.001,
+          audioContext.currentTime + duration
+        );
 
-        function nextQuestion() {
+        oscillator.connect(gain);
+        gain.connect(audioContext.destination);
 
-            playNextSound();
+        oscillator.start();
 
+        oscillator.stop(
+          audioContext.currentTime + duration
+        );
 
-            currentIndex++;
-
-
-            if (
-                currentIndex >=
-                quizData.length
-            ) {
-
-                showFinalCelebration();
-
-                return;
-            }
+      } catch (error) {
+        // تجاهل الخطأ إذا المتصفح يمنع الصوت
+      }
+    }
 
 
-            loadQuestion();
+    /* ==============================
+       المؤثرات
+    ============================== */
+
+    function createHeart() {
+
+      const heart =
+        document.createElement("div");
+
+      heart.className = "floating-heart";
+
+      const hearts = [
+        "❤️",
+        "💗",
+        "💖",
+        "💘",
+        "💕",
+        "💞"
+      ];
+
+      heart.textContent =
+        hearts[
+          Math.floor(Math.random() * hearts.length)
+        ];
+
+      heart.style.left =
+        Math.random() * 100 + "vw";
+
+      heart.style.bottom = "-30px";
+
+      heart.style.fontSize =
+        (15 + Math.random() * 20) + "px";
+
+      heart.style.animationDuration =
+        (5 + Math.random() * 5) + "s";
+
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 10000);
+    }
+
+
+    setInterval(createHeart, 1100);
+
+
+    function createSparkles() {
+
+      for (let i = 0; i < 12; i++) {
+
+        setTimeout(() => {
+
+          const sparkle =
+            document.createElement("div");
+
+          sparkle.className = "sparkle";
+          sparkle.textContent = "✦";
+
+          sparkle.style.left =
+            Math.random() * 100 + "vw";
+
+          sparkle.style.top =
+            Math.random() * 100 + "vh";
+
+          sparkle.style.fontSize =
+            (10 + Math.random() * 15) + "px";
+
+          document.body.appendChild(sparkle);
+
+          setTimeout(() => {
+            sparkle.remove();
+          }, 1800);
+
+        }, i * 80);
+      }
+    }
+
+
+    /* ==============================
+       تحميل السؤال
+    ============================== */
+
+    function loadQuestion() {
+
+      const data =
+        quizData[currentQuestion];
+
+      const questionNumber =
+        currentQuestion + 1;
+
+      const percent =
+        Math.round(
+          (questionNumber / quizData.length) * 100
+        );
+
+      questionNumberElement.textContent =
+        "السؤال " + questionNumber;
+
+      questionElement.textContent =
+        data.q;
+
+      progressText.textContent =
+        "السؤال " +
+        questionNumber +
+        " من " +
+        quizData.length;
+
+      progressPercent.textContent =
+        percent + "%";
+
+      progressBar.style.width =
+        percent + "%";
+
+      answerInput.value = "";
+
+      answerInput.disabled = false;
+
+      submitButton.disabled = false;
+
+      replyArea.style.display = "none";
+
+      answerInput.focus();
+
+      document
+        .querySelector(".question-card")
+        .style.animation = "none";
+
+      void document
+        .querySelector(".question-card")
+        .offsetWidth;
+
+      document
+        .querySelector(".question-card")
+        .style.animation = "cardIn 0.5s ease";
+    }
+
+
+    /* ==============================
+       إرسال الإجابة
+    ============================== */
+
+    function submitAnswer() {
+
+      const answer =
+        answerInput.value.trim();
+
+      if (!answer) {
+
+        answerInput.focus();
+
+        answerInput.animate(
+          [
+            { transform: "translateX(0)" },
+            { transform: "translateX(-5px)" },
+            { transform: "translateX(5px)" },
+            { transform: "translateX(0)" }
+          ],
+          {
+            duration: 250
+          }
+        );
+
+        return;
+      }
+
+      playTone(620, 0.1);
+
+      createSparkles();
+
+      confetti({
+        particleCount: 35,
+        spread: 65,
+        origin: {
+          y: 0.65
+        }
+      });
+
+      userAnswers[currentQuestion] =
+        answer;
+
+      userAnswerText.textContent =
+        answer;
+
+      ahmedReplyText.textContent =
+        quizData[currentQuestion].ahmedReply;
+
+      answerInput.disabled = true;
+
+      submitButton.disabled = true;
+
+      replyArea.style.display = "block";
+
+      setTimeout(() => {
+
+        replyArea.scrollIntoView({
+          behavior: "smooth",
+          block: "nearest"
+        });
+
+      }, 100);
+
+    }
+
+
+    /* ==============================
+       السؤال التالي
+    ============================== */
+
+    function nextQuestion() {
+
+      playTone(720, 0.08);
+
+      currentQuestion++;
+
+      if (
+        currentQuestion >=
+        quizData.length
+      ) {
+
+        showFinalScreen();
+
+        return;
+      }
+
+      loadQuestion();
+
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
+
+
+    /* ==============================
+       الشاشة النهائية
+    ============================== */
+
+    function showFinalScreen() {
+
+      quizSection.style.display = "none";
+
+      quizHeader.style.display = "none";
+
+      finalScreen.style.display = "block";
+
+      finalMessage.innerHTML = "";
+
+      createSparkles();
+
+      confetti({
+        particleCount: 180,
+        spread: 120,
+        startVelocity: 35,
+        origin: {
+          y: 0.55
+        }
+      });
+
+      typeFinalMessage();
+    }
+
+
+    /* ==============================
+       كتابة الرسالة حرف حرف
+    ============================== */
+
+    let typingTimer = null;
+
+    function typeFinalMessage() {
+
+      if (typingTimer) {
+        clearInterval(typingTimer);
+        typingTimer = null;
+      }
+
+      finalMessage.innerHTML =
+        '<span class="cursor"></span>';
+
+      let index = 0;
+
+      typingTimer = setInterval(() => {
+
+        if (index >= finalMessageText.length) {
+
+          clearInterval(typingTimer);
+
+          typingTimer = null;
+
+          finalMessage.innerHTML =
+            finalMessageText;
+
+          return;
+        }
+
+        const currentText =
+          finalMessageText.slice(
+            0,
+            index + 1
+          );
+
+        finalMessage.innerHTML =
+          currentText +
+          '<span class="cursor"></span>';
+
+        index++;
+
+      }, 32);
+    }
+
+
+    /* ==============================
+       إعادة قراءة الرسالة
+    ============================== */
+
+    function readFinalMessageAgain() {
+
+      playTone(580, 0.1);
+
+      createSparkles();
+
+      finalMessage.animate(
+        [
+          {
+            opacity: 0.35,
+            transform: "scale(0.98)"
+          },
+          {
+            opacity: 1,
+            transform: "scale(1)"
+          }
+        ],
+        {
+          duration: 400
+        }
+      );
+
+      typeFinalMessage();
+    }
+
+
+    /* ==============================
+       نسخ جميع الأسئلة والإجابات
+    ============================== */
+
+    async function copyAnswers() {
+
+      let fullText =
+        "💌 تحدي القلوب مع أحمد\n\n";
+
+      fullText +=
+        "=============================\n\n";
+
+      quizData.forEach((item, index) => {
+
+        fullText +=
+          "السؤال " +
+          (index + 1) +
+          ":\n";
+
+        fullText +=
+          item.q +
+          "\n\n";
+
+        fullText +=
+          "إجابتها:\n";
+
+        fullText +=
+          (userAnswers[index] ||
+          "لم تتم الإجابة") +
+          "\n\n";
+
+        fullText +=
+          "جواب أحمد:\n";
+
+        fullText +=
+          item.ahmedReply +
+          "\n\n";
+
+        fullText +=
+          "-----------------------------\n\n";
+      });
+
+      fullText +=
+        "💌 الرسالة الأخيرة:\n\n";
+
+      fullText +=
+        finalMessageText;
+
+
+      try {
+
+        await navigator.clipboard.writeText(
+          fullText
+        );
+
+        playTone(850, 0.12);
+
+        confetti({
+          particleCount: 50,
+          spread: 70,
+          origin: {
+            y: 0.7
+          }
+        });
+
+        alert(
+          "تم نسخ كل الأسئلة وإجاباتها ❤️"
+        );
+
+      } catch (error) {
+
+        const textArea =
+          document.createElement("textarea");
+
+        textArea.value = fullText;
+
+        textArea.style.position =
+          "fixed";
+
+        textArea.style.opacity = "0";
+
+        document.body.appendChild(
+          textArea
+        );
+
+        textArea.focus();
+
+        textArea.select();
+
+        try {
+
+          document.execCommand(
+            "copy"
+          );
+
+          alert(
+            "تم نسخ كل الأسئلة وإجاباتها ❤️"
+          );
+
+        } catch (err) {
+
+          alert(
+            "ماقدرتش ننسخ النص تلقائياً، جربي مرة ثانية."
+          );
 
         }
 
+        document.body.removeChild(
+          textArea
+        );
+      }
+    }
 
-        /* =====================================================
-           FINAL CELEBRATION
-        ===================================================== */
 
-        function showFinalCelebration() {
+    /* ==============================
+       إعادة اللعبة من البداية
+    ============================== */
 
-            playFinalSound();
+    function restartGame() {
 
+      playTone(500, 0.1);
 
-            /*
-             * انفجار أول
-             */
+      currentQuestion = 0;
 
-            confetti({
+      userAnswers = [];
 
-                particleCount: 120,
+      finalScreen.style.display =
+        "none";
 
-                spread: 100,
+      quizHeader.style.display =
+        "block";
 
-                startVelocity: 35,
+      quizSection.style.display =
+        "block";
 
-                origin: {
-                    y: 0.55
-                }
+      loadQuestion();
 
-            });
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth"
+      });
+    }
 
 
-            /*
-             * انفجار ثاني
-             */
+    /* ==============================
+       Enter لإرسال الإجابة
+       Shift + Enter = سطر جديد
+    ============================== */
 
-            setTimeout(() => {
+    answerInput.addEventListener(
+      "keydown",
+      function(event) {
 
-                confetti({
+        if (
+          event.key === "Enter" &&
+          !event.shiftKey
+        ) {
 
-                    particleCount: 120,
+          event.preventDefault();
 
-                    spread: 120,
-
-                    startVelocity: 30,
-
-                    origin: {
-                        x: 0.15,
-                        y: 0.6
-                    }
-
-                });
-
-
-                confetti({
-
-                    particleCount: 120,
-
-                    spread: 120,
-
-                    startVelocity: 30,
-
-                    origin: {
-                        x: 0.85,
-                        y: 0.6
-                    }
-
-                });
-
-            }, 450);
-
-
-            const fullLog =
-                userAnswersLog.join("\n");
-
-
-            const card =
-                document.getElementById(
-                    "game-card"
-                );
-
-
-            card.innerHTML = `
-
-                <div
-                    class="final-screen py-2"
-                >
-
-                    <span
-                        class="final-crown text-5xl mb-3 block"
-                    >
-                        👑💖
-                    </span>
-
-
-                    <h2
-                        class="text-xl md:text-2xl font-extrabold text-pink-400 mb-3"
-                    >
-                        رسالة الغول الأسطورية لك يا غالية!
-                    </h2>
-
-
-                    <p
-                        id="typed-message"
-                        class="final-message text-gray-200 text-xs md:text-sm leading-relaxed mb-5 bg-pink-950/40 p-5 rounded-2xl border border-pink-500/30 min-h-[110px] text-right"
-                    ></p>
-
-
-                    <button
-                        onclick="copyAnswers()"
-                        class="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 rounded-xl font-bold shadow-lg hover:opacity-95 transition mb-3 text-sm option-btn"
-                    >
-                        📋 نسخ كل الأسئلة وإجاباتها ❤️
-                    </button>
-
-
-                    <button
-                        onclick="location.reload()"
-                        class="text-xs text-gray-400 underline hover:text-white transition"
-                    >
-                        العب من جديد 🔄
-                    </button>
-
-                </div>
-
-            `;
-
-
-            const messageText =
-
-                "يا أجمل وأروع صدفة دخلت دنيتي.. انتي مو بس حبيبتي، انتي عالمي الخاص، روحي، وكل شي فيا 🙈💋❣️. نحبك اليوم، وبكرة، ولآخر العمر يا أسطورة الكون كله. امووووووووووووووووووووووووووحححح 💋💋💋💋";
-
-
-            const typedElement =
-                document.getElementById(
-                    "typed-message"
-                );
-
-
-            let charIndex = 0;
-
-
-            function typeWriter() {
-
-                if (
-                    charIndex <
-                    messageText.length
-                ) {
-
-                    typedElement.innerHTML +=
-                        messageText.charAt(
-                            charIndex
-                        );
-
-
-                    charIndex++;
-
-
-                    setTimeout(
-                        typeWriter,
-                        28
-                    );
-
-                }
-
-            }
-
-
-            /*
-             * بداية الرسالة بعد لحظة
-             */
-
-            setTimeout(
-                typeWriter,
-                500
-            );
-
-
-            window.finalLogToCopy =
-                fullLog;
+          submitAnswer();
 
         }
 
-
-        /* =====================================================
-           COPY ANSWERS
-        ===================================================== */
-
-        async function copyAnswers() {
-
-            playClickSound();
+      }
+    );
 
 
-            if (
-                !window.finalLogToCopy
-            ) {
+    /* ==============================
+       البداية
+    ============================== */
 
-                return;
+    loadQuestion();
 
-            }
-
-
-            const copyText =
-                window.finalLogToCopy;
-
-
-            try {
-
-                /*
-                 * الطريقة الحديثة
-                 */
-
-                if (
-                    navigator.clipboard &&
-                    window.isSecureContext
-                ) {
-
-                    await navigator.clipboard.writeText(
-                        copyText
-                    );
-
-                }
-
-                else {
-
-                    /*
-                     * طريقة احتياطية
-                     */
-
-                    const textArea =
-                        document.createElement(
-                            "textarea"
-                        );
-
-
-                    textArea.value =
-                        copyText;
-
-
-                    textArea.style.position =
-                        "fixed";
-
-                    textArea.style.opacity =
-                        "0";
-
-
-                    document.body.appendChild(
-                        textArea
-                    );
-
-
-                    textArea.focus();
-
-                    textArea.select();
-
-
-                    document.execCommand(
-                        "copy"
-                    );
-
-
-                    textArea.remove();
-
-                }
-
-
-                alert(
-                    "تم نسخ كل الأسئلة وإجاباتك وجواب أحمد بنجاح ❤️"
-                );
-
-
-            }
-
-            catch (error) {
-
-                alert(
-                    "عذراً، لم يتم النسخ. يمكنك تحديد النص ونسخه يدويًا."
-                );
-
-            }
-
-        }
-
-
-        /* =====================================================
-           START
-        ===================================================== */
-
-        loadQuestion();
-
-    </script>
+  </script>
 
 </body>
 </html>
